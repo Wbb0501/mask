@@ -1,87 +1,69 @@
 <template>
   <div class="hello">
     <header class="header">
-      <button class="btn" style="margin-right:6.5%;">编辑</button>
+      <button class="btn" style="margin-right:.5rem;" @click="getContent">刷新</button>
     </header>
-    <section class="section">
-      <ul>
-        <li v-for="(item,index) in list.top" :key="index" class="item">
-          <div>
+    <section class="section wrapper" ref="wrapper">
+      <div class="content">
+        <ul v-if="showList">
+          <li class="item" @click="pushOther(showList.sourceLink)">
             <div>
-              <h2 style="font-size:2vw;margin-bottom:2vh;color:rgb(74, 159, 112);font-weight:normal;">{{item.title}}</h2>
-              <h3 style="font-size:1.7vw;color:#888;font-weight:normal;">{{item.content}}</h3>
-              <h3 style="font-size:1.7vw;color:#888;font-weight:normal;">{{item.tips}}</h3>
+              <div>
+                <h2
+                  class="h2-c"
+                  style="font-size:.3rem;margin-bottom:.2rem;color:rgb(74, 159, 112);font-weight:normal;"
+                >{{showList.title}}</h2>
+                <h3
+                  style="font-size:.25rem;color:#888;font-weight:normal;"
+                >{{showList.briefIntroduction}}</h3>
+                <!-- <h3 style="font-size:.25rem;color:#888;font-weight:normal;">{{item.tips}}</h3> -->
+              </div>
+              <div>
+                <img :src="showList.imgLink" alt style="width:100%;">
+              </div>
             </div>
-            <div :style="{visibility: index == 0 ? '' : 'hidden'}">
-              <img src="../assets/pic.png" alt="" style="width:100%;height:100%;">
-            </div>
-          </div>
-          <div>
-            <button class="btn" :style="{visibility: index == 0 ? '' : 'hidden'}">编辑</button>
-          </div>
-        </li>
-      </ul>
-      <ul>
-        <li v-for="(item,index) in list.bottom" :key="index" class="item">
-          <div>
-            <div>
-              <h2 style="font-size:2vw;margin-bottom:2vh;color:rgb(74, 159, 112);font-weight:normal;">{{item.title}}</h2>
-              <h3 style="font-size:1.7vw;color:#888;font-weight:normal;">{{item.content}}</h3>
-              <h3 style="font-size:1.7vw;color:#888;font-weight:normal;">{{item.tips}}</h3>
-            </div>
-            <div :style="{visibility: index == 0 ? '' : 'hidden'}">
-              <img src="../assets/pic.png" alt="" style="width:100%;height:100%;">
-            </div>
-          </div>
-          <div>
-            <button class="btn" :style="{visibility: index == 0 ? '' : 'hidden'}">编辑</button>
-          </div>
-        </li>
-      </ul>
+            <!-- <div :style="{visibility: index == 0 ? '' : 'hidden'}">
+              <button class="btn">编辑</button>
+            </div>-->
+          </li>
+        </ul>
+        <div v-else style="width:100%;height:2rem;font-size:.3rem;">没有更多了</div>
+      </div>
     </section>
   </div>
 </template>
 
 <script>
+import Bscroll from "better-scroll";
+import axios from "axios";
 export default {
   name: "HelloWorld",
   data() {
     return {
-      list:{
-        top:[
-          {
-            title:"春雨面膜十分好用春雨面膜十分好用春雨面膜十分好春雨",
-            content:"您拍下的宝贝“良品铺子手剥松子120g休闲食品开口手拨松子新货坚果炒货”",
-            tips:"已成功投保运费险"
-          },
-          {
-            title:"春雨面膜十分好用春雨面膜十分好用春雨面膜十分好春雨",
-            content:"您拍下的宝贝“良品铺子手剥松子120g休闲食品开口手拨松子新货坚果炒货”",
-            tips:"已成功投保运费险"
-          },{
-            title:"春雨面膜十分好用春雨面膜十分好用春雨面膜十分好春雨",
-            content:"您拍下的宝贝“良品铺子手剥松子120g休闲食品开口手拨松子新货坚果炒货”",
-            tips:"已成功投保运费险"
-          }
-        ],
-        bottom:[
-          {
-            title:"春雨面膜十分好用春雨面膜十分好用春雨面膜十分好春雨",
-            content:"您拍下的宝贝“良品铺子手剥松子120g休闲食品开口手拨松子新货坚果炒货”",
-            tips:"已成功投保运费险"
-          },
-          {
-            title:"春雨面膜十分好用春雨面膜十分好用春雨面膜十分好春雨",
-            content:"您拍下的宝贝“良品铺子手剥松子120g休闲食品开口手拨松子新货坚果炒货”",
-            tips:"已成功投保运费险"
-          },{
-            title:"春雨面膜十分好用春雨面膜十分好用春雨面膜十分好春雨",
-            content:"您拍下的宝贝“良品铺子手剥松子120g休闲食品开口手拨松子新货坚果炒货”",
-            tips:"已成功投保运费险"
-          }
-        ]
-      }
+      showList: null
     };
+  },
+  methods: {
+    getContent() {
+      axios.get("/api/article/getRecentValidArticle").then(res => {
+        console.log(res);
+        this.showList=res.data.data;
+        console.log(this.showList);
+      });
+    },
+    pushOther(url){
+      window.open(url);
+    }
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.scroll = new Bscroll(this.$refs.wrapper, {
+        mouseWheel: true
+      });
+    });
+  },
+  created() {
+    this.getContent();
   }
 };
 </script>
@@ -89,54 +71,74 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
 .hello {
-  padding: 2vw;
+  /* padding: 2vw; */
+  width: 100%;
   height: 100%;
+  overflow: hidden;
 }
 .header {
   background: #f7f2f7;
-  height: 10vh;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  margin-bottom: 2%;
+  width: 1160px;
+  height: 0.8rem;
+  position: fixed;
 }
 .btn {
-  width: 10vw;
-  height: 6.5vh;
+  width: 0.8rem;
+  height: 0.4rem;
   border: none;
   background: #ff9800;
-  font-size: 2.4vh;
-  min-width: 60px;
+  font-size: 0.2rem;
+  /* min-width: 60px; */
 }
-.section{
-  padding-left: 2%;
-  padding-right: 6.5%;
+.section {
+  margin-top: 1rem;
+  padding-left: 0.15rem;
+  padding-right: 0.5rem;
+  width: 100%;
+  height: calc(100% - 1rem);
+  overflow: hidden;
 }
-.section>ul{
-  border-top:solid 1px #BBBBBB;
+.section > div > ul {
+  border-top: solid 1px #bbbbbb;
 }
-.item{
-  padding: 5vh 0 0 0;
+.item {
+  padding-top: 0.4rem;
   display: flex;
   justify-content: space-between;
 }
-.item>div:nth-child(1){
+.item > div:nth-child(1) {
   flex: 1;
-  padding-bottom: 6vh;
-  height: 15vh;
-  margin-right: 10vh;
-  border-bottom:solid 1px #BBBBBB;
+  padding-bottom: 0.5rem;
+  /* height: 15vh; */
+  margin-right: 0.3rem;
+  border-bottom: solid 1px #bbbbbb;
   display: flex;
   justify-content: space-between;
 }
-.item:nth-last-of-type(1)>div:nth-child(1){
-  border-bottom:none;
+.item:nth-last-of-type(1) > div:nth-child(1) {
+  border-bottom: none;
 }
-.item>div:nth-child(1)>div:nth-child(2){
-  width: 13vw;
-  height: 14vh;
-  background: greenyellow;
-  
+.item > div:nth-child(1) > div:nth-child(2) {
+  margin-left: 0.1rem;
+  width: 35%;
+  height: 1.5rem;
+  overflow: hidden;
 }
-
+.item > div:nth-child(1) > div:nth-child(1) {
+  width: 65%;
+}
+.h2-c {
+  width: 100%;
+  /* white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; */
+}
+@media (max-width: 1000px) {
+  .header {
+    width: calc(100% - 0.4rem);
+  }
+}
 </style>
